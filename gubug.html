@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solar Panel Monitoring and Control</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+
+        header {
+            background-color: #00796b;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        nav {
+            background-color: #004d40;
+            padding: 10px;
+            text-align: center;
+        }
+
+        nav button {
+            background-color: #00796b;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        nav button:hover {
+            background-color: #004d40;
+        }
+
+        section {
+            margin: 20px auto;
+            padding: 20px;
+            max-width: 900px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .section-title {
+            font-size: 28px;
+            margin-bottom: 20px;
+            color: #00796b;
+            text-align: center;
+        }
+
+        .status-box, .control-panel, .time-panel {
+            display: flex;
+            justify-content: space-around;
+            padding: 20px;
+            background-color: #e0f2f1;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .status-item, .control-item, .time-item {
+            text-align: center;
+            flex: 1;
+        }
+
+        .status-item h3, .control-item h3, .time-item h3 {
+            color: #004d40;
+            margin-bottom: 10px;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+            border: none;
+            transition: background-color 0.3s ease;
+        }
+
+        .on {
+            background-color: #388e3c;
+            color: white;
+        }
+
+        .off {
+            background-color: #d32f2f;
+            color: white;
+        }
+
+        .on:hover {
+            background-color: #2e7d32;
+        }
+
+        .off:hover {
+            background-color: #c62828;
+        }
+
+        input[type="time"] {
+            padding: 5px;
+            font-size: 16px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+
+        .timer-buttons {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .timer-display {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #e0f2f1;
+            border-radius: 10px;
+            text-align: center;
+            font-size: 18px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            text-align: center;
+        }
+
+        th {
+            background-color: #00796b;
+            color: white;
+        }
+
+        canvas {
+            max-width: 100%;
+            height: auto;
+            margin-top: 20px;
+        }
+
+        .slider-buttons {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        #page1, #page2 {
+            display: none;
+        }
+
+        #page1.active, #page2.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Solar Panel Monitoring and Control System</h1>
+    </header>
+
+    <nav>
+        <button onclick="showPage(1)">Page 1: Monitoring & Control</button>
+        <button onclick="showPage(2)">Page 2: Power Usage Report</button>
+    </nav>
+
+    <!-- Halaman 1: Monitoring dan Kontrol -->
+    <div id="page1" class="active">
+        <section id="monitoring">
+            <h2 class="section-title">Power Usage Monitoring</h2>
+            <div class="status-box">
+                <div class="status-item">
+                    <h3>Solar Panel Output</h3>
+                    <p id="solar-output">0 W</p>
+                </div>
+                <div class="status-item">
+                    <h3>Load Power Consumption</h3>
+                    <p id="load-consumption">0 W</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="control">
+            <h2 class="section-title">Device Control</h2>
+            <div class="control-panel">
+                <div class="control-item">
+                    <h3>Light Trap</h3>
+                    <button id="lamp-btn" class="off" onclick="toggleDevice('lamp')">Turn On</button>
+                </div>
+                <div class="control-item">
+                    <h3>Ultrasonic</h3>
+                    <button id="ultrasonic-btn" class="off" onclick="toggleDevice('ultrasonic')">Turn On</button>
+                </div>
+                <div class="control-item">
+                    <h3>Water Pump</h3>
+                    <button id="pump-btn" class="off" onclick="toggleDevice('pump')">Turn On</button>
+                </div>
+            </div>
+        </section>
+
+        <section id="time-control">
+            <h2 class="section-title">Time Control</h2>
+            <div class="time-panel">
+                <div class="time-item">
+                    <h3>Light Trap Timer</h3>
+                    <label for="lamp-on-time">On:</label>
+                    <input type="time" id="lamp-on-time">
+                    <label for="lamp-off-time">Off:</label>
+                    <input type="time" id="lamp-off-time">
+                </div>
+                <div class="time-item">
+                    <h3>Ultrasonic Timer</h3>
+                    <label for="ultrasonic-on-time">On:</label>
+                    <input type="time" id="ultrasonic-on-time">
+                    <label for="ultrasonic-off-time">Off:</label>
+                    <input type="time" id="ultrasonic-off-time">
+                </div>
+                <div class="time-item">
+                    <h3>Water Pump Timer</h3>
+                    <label for="pump-on-time">On:</label>
+                    <input type="time" id="pump-on-time">
+                    <label for="pump-off-time">Off:</label>
+                    <input type="time" id="pump-off-time">
+                </div>
+            </div>
+            <div class="timer-buttons">
+                <button onclick="setTimers()">Set Timer</button>
+                <button onclick="runTimers()">Run</button>
+            </div>
+            <div id="timer-display" class="timer-display">
+                <!-- Display timer messages here -->
+            </div>
+        </section>
+    </div>
+
+    <!-- Halaman 2: Laporan Penggunaan Daya -->
+    <div id="page2">
+        <section id="report">
+            <h2 class="section-title">Realtime Power Usage Report</h2>
+            <canvas id="powerChart"></canvas>
+
+            <h3 class="section-title">Power Usage Log</h3>
+            <table id="powerLogTable">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Time</th>
+                        <th>Solar Panel Output (W)</th>
+                        <th>Charging Station (W)</th>
+                        <th>Light Trap (W)</th>
+                        <th>Ultrasonic (W)</th>
+                        <th>Water Pump (W)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Log entries will be dynamically added here -->
+                </tbody>
+            </table>
+        </section>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        let timers = {};
+        let solarData = [];
+        let loadData = [];
+        let lampData = [];
+        let ultrasonicData = [];
+        let pumpData = [];
+        let timeLabels = [];
+        let timerInterval;
+        let devices = {
+            lamp: false,
+            ultrasonic: false,
+            pump: false
+        };
+
+        function toggleDevice(device) {
+            const btn = document.getElementById(device + '-btn');
+            if (btn.classList.contains('off')) {
+                btn.classList.remove('off');
+                btn.classList.add('on');
+                btn.textContent = 'Turn Off';
+                devices[device] = true;
+                console.log(device + ' turned on');
+            } else {
+                btn.classList.remove('on');
+                btn.classList.add('off');
+                btn.textContent = 'Turn On';
+                devices[device] = false;
+                console.log(device + ' turned off');
+            }
+        }
+
+        function setTimers() {
+            timers.lampOn = document.getElementById('lamp-on-time').value;
+            timers.lampOff = document.getElementById('lamp-off-time').value;
+            timers.ultrasonicOn = document.getElementById('ultrasonic-on-time').value;
+            timers.ultrasonicOff = document.getElementById('ultrasonic-off-time').value;
+            timers.pumpOn = document.getElementById('pump-on-time').value;
+            timers.pumpOff = document.getElementById('pump-off-time').value;
+            alert('Timers set successfully!');
+        }
+
+        function runTimers() {
+            const timerDisplay = document.getElementById('timer-display');
+            timerDisplay.innerHTML = ''; // Clear previous display
+            updateTimerDisplay();
+            if (timerInterval) {
+                clearInterval(timerInterval);
+            }
+            timerInterval = setInterval(checkTimers, 1000); // Check every second
+        }
+
+        function updateTimerDisplay() {
+            const now = new Date();
+            const formattedTime = now.toTimeString().slice(0, 5);
+            document.getElementById('timer-display').innerHTML = `
+                Current Time: ${formattedTime}<br>
+                Lamp Timer: On at ${timers.lampOn || 'N/A'}, Off at ${timers.lampOff || 'N/A'}<br>
+                Ultrasonic Timer: On at ${timers.ultrasonicOn || 'N/A'}, Off at ${timers.ultrasonicOff || 'N/A'}<br>
+                Water Pump Timer: On at ${timers.pumpOn || 'N/A'}, Off at ${timers.pumpOff || 'N/A'}<br>
+            `;
+        }
+
+        function checkTimers() {
+            const now = new Date();
+            const currentTime = now.toTimeString().slice(0, 5);
+
+            if (timers.lampOn === currentTime) {
+                toggleDevice('lamp');
+            } else if (timers.lampOff === currentTime) {
+                toggleDevice('lamp');
+            }
+
+            if (timers.ultrasonicOn === currentTime) {
+                toggleDevice('ultrasonic');
+            } else if (timers.ultrasonicOff === currentTime) {
+                toggleDevice('ultrasonic');
+            }
+
+            if (timers.pumpOn === currentTime) {
+                toggleDevice('pump');
+            } else if (timers.pumpOff === currentTime) {
+                toggleDevice('pump');
+            }
+        }
+
+        function updateMonitoring() {
+            const solarOutput = Math.floor(Math.random() * 500); // Simulasi keluaran panel surya
+            const loadConsumption = Math.floor(Math.random() * 400); // Simulasi konsumsi daya beban
+            const lampConsumption = Math.floor(Math.random() * 100); // Simulasi daya lampu
+            const ultrasonicConsumption = Math.floor(Math.random() * 50); // Simulasi daya ultrasonik
+            const pumpConsumption = Math.floor(Math.random() * 200); // Simulasi daya water pump
+
+            document.getElementById('solar-output').textContent = solarOutput + ' W';
+            document.getElementById('load-consumption').textContent = loadConsumption + ' W';
+
+            const currentDate = new Date().toLocaleDateString();
+            const currentTime = new Date().toLocaleTimeString();
+
+            // Simpan data untuk chart dan log
+            solarData.push(solarOutput);
+            loadData.push(loadConsumption);
+            lampData.push(lampConsumption);
+            ultrasonicData.push(ultrasonicConsumption);
+            pumpData.push(pumpConsumption);
+            timeLabels.push(currentTime);
+
+            // Update Chart
+            powerChart.update();
+
+            // Tambahkan log ke tabel
+            const logTable = document.getElementById('powerLogTable').getElementsByTagName('tbody')[0];
+            const newRow = logTable.insertRow();
+            newRow.insertCell(0).textContent = currentDate; // Menampilkan tanggal
+            newRow.insertCell(1).textContent = currentTime; // Menampilkan waktu
+            newRow.insertCell(2).textContent = solarOutput + ' W';
+            newRow.insertCell(3).textContent = loadConsumption + ' W';
+            newRow.insertCell(4).textContent = lampConsumption + ' W';
+            newRow.insertCell(5).textContent = ultrasonicConsumption + ' W';
+            newRow.insertCell(6).textContent = pumpConsumption + ' W';
+        }
+
+        function showPage(page) {
+            document.getElementById('page1').classList.remove('active');
+            document.getElementById('page2').classList.remove('active');
+            document.getElementById('page' + page).classList.add('active');
+        }
+
+        const powerChart = new Chart(document.getElementById('powerChart'), {
+            type: 'line',
+            data: {
+                labels: timeLabels,
+                datasets: [
+                    {
+                        label: 'Solar Panel Output (W)',
+                        data: solarData,
+                        borderColor: 'green',
+                        fill: false
+                    },
+                    {
+                        label: 'Charging Station (W)',
+                        data: loadData,
+                        borderColor: 'blue',
+                        fill: false
+                    },
+                    {
+                        label: 'Light Trap (W)',
+                        data: lampData,
+                        borderColor: 'yellow',
+                        fill: false
+                    },
+                    {
+                        label: 'Ultrasonic (W)',
+                        data: ultrasonicData,
+                        borderColor: 'orange',
+                        fill: false
+                    },
+                    {
+                        label: 'Water Pump (W)',
+                        data: pumpData,
+                        borderColor: 'red',
+                        fill: false
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                title: {
+                    display: true,
+                    text: 'Power Usage Over Time'
+                }
+            }
+        });
+
+        // Update monitoring setiap 5 detik
+        setInterval(updateMonitoring, 5000);
+    </script>
+</body>
+</html>
